@@ -28,6 +28,6 @@ def TokenCreate(request):
         data = request.body.decode('utf-8')
         data_json = json.loads(data)
         token = Token()
-        token.id = data_json["id"]
+        token.token = data_json["token"]
         token.save()
         return HttpResponse("successfully created token")
