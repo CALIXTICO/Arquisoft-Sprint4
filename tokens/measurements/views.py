@@ -78,7 +78,7 @@ def tokenRelateDoctor(request):
                         token2 = data_json.get('token2', '')
                         usuario2 = Measurement.objects.get(token=token2)
                     
-                        solicitud = autorizarDoctor(data)
+                        solicitud = autorizarDoctor(token2)
 
                         context = {'nombre': usuario2.nombre, 'apellido': usuario2.apellido, 'rol': usuario2.rol, 'token':usuario2.token, 'codDoctor':solicitud}
                         return JsonResponse(context, status=200)
