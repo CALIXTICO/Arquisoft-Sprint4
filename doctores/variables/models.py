@@ -1,7 +1,15 @@
 from django.db import models
 
-class Variable(models.Model):
-    name = models.CharField(max_length=50)
+class Doctor(models.Model):
+    nombre = models.CharField(max_length=50)
+    #documento = models.IntegerField(null=False, default=None)
+    especialidad = models.CharField(max_length=50)
+    cuentaBancaria = models.IntegerField(null=False, default=None)
 
     def __str__(self):
-        return '{}'.format(self.name)
+        return '%s %s' % (self.nombre, self.documento, self.especialidad)
+
+class Token(models.Model):
+    
+    def _str_(self):
+        return '{}'.format(self.token)

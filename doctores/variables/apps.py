@@ -1,5 +1,5 @@
 from django.apps import AppConfig
 
 
-class VariablesConfig(AppConfig):
-    name = 'variables'
+class DoctoresConfig(AppConfig):
+    name = 'doctores'
