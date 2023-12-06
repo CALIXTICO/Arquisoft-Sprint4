@@ -1,36 +1,38 @@
-package com.example.demo.model;
+package co.edu.uniandes.historias.model;
 
+import java.util.List;
 import org.springframework.data.annotation.Id;
+import lombok.Data;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document
+@Data
+@Document("historias")
 public class HistoriaClinica {
 
     @Id
-    private String id;
+    private String _id;
     private String pacienteNombre;
-    private String medicoNombre;
+    private List<Orden> ordenes;
     private String diagnostico;
 
 
     public HistoriaClinica() {
     }
 
-    // Constructor
-    public HistoriaClinica(String pacienteNombre, String medicoNombre, String diagnostico) {
+
+    public HistoriaClinica(String pacienteNombre,  String diagnostico) {
         this.pacienteNombre = pacienteNombre;
-        this.medicoNombre = medicoNombre;
         this.diagnostico = diagnostico;
     }
 
 
-    // Getters y Setters
+
     public String getId() {
-        return id;
+        return _id;
     }
 
     public void setId(String id) {
-        this.id = id;
+        this._id = id;
     }
 
     public String getPacienteNombre() {
@@ -40,14 +42,17 @@ public class HistoriaClinica {
     public void setPacienteNombre(String pacienteNombre) {
         this.pacienteNombre = pacienteNombre;
     }
+    
 
-    public String getMedicoNombre() {
-        return medicoNombre;
+    public List<Orden> getOrdenes() {
+        return ordenes;
     }
 
-    public void setMedicoNombre(String medicoNombre) {
-        this.medicoNombre = medicoNombre;
+
+    public void setOrdenes(List<Orden> ordenes) {
+        this.ordenes = ordenes;
     }
+
 
     public String getDiagnostico() {
         return diagnostico;

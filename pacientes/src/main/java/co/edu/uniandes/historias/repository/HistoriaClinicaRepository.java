@@ -1,8 +1,9 @@
-package com.example.demo.repository;
+package co.edu.uniandes.historias.repository;
 
-import com.example.demo.model.HistoriaClinica;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
+import co.edu.uniandes.historias.model.HistoriaClinica;
+
 public interface HistoriaClinicaRepository extends MongoRepository<HistoriaClinica, String> {
-    // Puedes agregar consultas personalizadas aquí si es necesario
+
 }
