@@ -8,49 +8,87 @@ from django.conf import settings
 import requests
 import json
 
-def check_variable(data):
-    r = requests.get(settings.PATH_VAR, headers={"Accept":"application/json"})
-    variables = r.json()
-    for variable in variables:
-        if data["variable"] == variable["id"]:
-            return True
-    return False
-
-def MeasurementList(request):
+def tokenList(request):
     queryset = Measurement.objects.all()
-    context = list(queryset.values('id', 'variable', 'value', 'unit', 'place', 'dateTime'))
+    context = list(queryset.values('id', 'token', 'nombre', 'apellido', 'rol'))
     return JsonResponse(context, safe=False)
 
-def MeasurementCreate(request):
-    if request.method == 'POST':
-        data = request.body.decode('utf-8')
-        data_json = json.loads(data)
-        if check_variable(data_json) == True:
-            measurement = Measurement()
-            measurement.variable = data_json['variable']
-            measurement.value = data_json['value']
-            measurement.unit = data_json['unit']
-            measurement.place = data_json['place']
-            measurement.save()
-            return HttpResponse("successfully created measurement")
+def autorizarDoctor(token):
+    url = settings.PATH_VAR
+    headers = {"Accept": "application/json", "Content-Type": "application/json"}
+    post_data = {"token": token}
+    try:
+        r = requests.post(url, json=post_data, headers=headers)
+        if r.status_code == 200:  
+            return 200
         else:
-            return HttpResponse("unsuccessfully created measurement. Variable does not exist")
+            return 400
+    except requests.RequestException as e:
+        print(f"Error making POST request: {e}")
+    return 0
 
-def MeasurementsCreate(request):
+def tokenAddDoctor(request):
     if request.method == 'POST':
         data = request.body.decode('utf-8')
         data_json = json.loads(data)
-        measurement_list = []
-        for measurement in data_json:
-                    if check_variable(measurement) == True:
-                        db_measurement = Measurement()
-                        db_measurement.variable = measurement['variable']
-                        db_measurement.value = measurement['value']
-                        db_measurement.unit = measurement['unit']
-                        db_measurement.place = measurement['place']
-                        measurement_list.append(db_measurement)
-                    else:
-                        return HttpResponse("unsuccessfully created measurement. Variable does not exist")
+        token = data_json.get('token', '')
+        if token:
+            try:
+                usuario = Measurement.objects.get(token=token)
+                if usuario.rol == "Administrativo":
+                    measurement = Measurement()
+                    measurement.nombre = data_json['nombre']
+                    measurement.apellido = data_json['apellido']
+                    measurement.rol = data_json['rol']
+                    measurement.save()
+
+                    solicitud = autorizarDoctor(measurement.token)
+
+                    context = {'nombre': measurement.nombre, 'apellido': measurement.apellido, 'rol': measurement.rol, 'token':measurement.token, 'codDoctor':solicitud}
+                    return JsonResponse(context, status=201)
+                else:
+                    return JsonResponse({'error': 'El usuario no esta autorizado'}, status=404)
+            except Measurement.DoesNotExist:
+                return JsonResponse({'error': 'El usuario no exite'}, status=404)
+        else:
+            return JsonResponse({'error': 'No se ingreso token.'}, status=400)
         
-        Measurement.objects.bulk_create(measurement_list)
-        return HttpResponse("successfully created measurements")
+def tokenCreateUser(request):
+    if request.method == 'POST':
+        data = request.body.decode('utf-8')
+        data_json = json.loads(data)
+        measurement = Measurement()
+        measurement.nombre = data_json['nombre']
+        measurement.apellido = data_json['apellido']
+        measurement.rol = data_json['rol']
+        measurement.save()
+        context = {'nombre': measurement.nombre, 'apellido': measurement.apellido, 'rol': measurement.rol, 'token':measurement.token}
+        return JsonResponse(context, status=201)
+
+def tokenRelateDoctor(request):
+    if request.method == 'POST':
+        data = request.body.decode('utf-8')
+        data_json = json.loads(data)
+        token1 = data_json.get('token1', '')
+        if token1:
+            try:
+                usuario = Measurement.objects.get(token=token1)
+                if usuario.rol == "Administrativo":
+                    try:
+                        token2 = data_json.get('token2', '')
+                        usuario2 = Measurement.objects.get(token=token2)
+                    
+                        solicitud = autorizarDoctor(data)
+
+                        context = {'nombre': usuario2.nombre, 'apellido': usuario2.apellido, 'rol': usuario2.rol, 'token':usuario2.token, 'codDoctor':solicitud}
+                        return JsonResponse(context, status=200)
+                    
+                    except Measurement.DoesNotExist:
+                        return JsonResponse({'error': 'El usuario2 no exite'}, status=404)
+                else:
+                    return JsonResponse({'error': 'El usuario no esta autorizado'}, status=404)
+            except Measurement.DoesNotExist:
+                return JsonResponse({'error': 'El usuario administrador no exite'}, status=404)
+        else:
+            return JsonResponse({'error': 'No se ingreso token.'}, status=400)
+
