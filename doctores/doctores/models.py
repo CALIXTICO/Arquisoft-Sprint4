@@ -10,8 +10,7 @@ class Doctor(models.Model):
         return '%s %s' % (self.nombre, self.documento, self.especialidad)
 
 class Token(models.Model):
+    token = models.CharField(max_length=50)
     
     def _str_(self):
-        token = models.CharField(max_length=50)
-
         return '{}'.format(self.token)
