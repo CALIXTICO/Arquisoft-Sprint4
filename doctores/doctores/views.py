@@ -36,7 +36,7 @@ def TokenCreate(request):
         return HttpResponse("successfully created token")
 
 def check_token(data):
-    tokens = Tokens.objects.all()
+    tokens = Token.objects.all()
     for token in Tokens:
         if data["token"] == token.token:
             return True
