@@ -15,13 +15,16 @@ def DoctorCreate(request):
     if request.method == 'POST':
         data = request.body.decode('utf-8')
         data_json = json.loads(data)
-        doctor = Doctor()
-        doctor.id = data_json["id"]
-        doctor.nombre = data_json["nombre"]
-        doctor.especialidad = data_json["especialidad"]
-        doctor.cuentaBancaria = data_json["cuentaBancaria"]
-        doctor.save()
-        return HttpResponse("successfully created doctor")
+        if check_token(data_json) == True:
+            doctor = Doctor()
+            doctor.id = data_json["id"]
+            doctor.nombre = data_json["nombre"]
+            doctor.especialidad = data_json["especialidad"]
+            doctor.cuentaBancaria = data_json["cuentaBancaria"]
+            doctor.save()
+            return HttpResponse("successfully created doctor")
+        else: 
+            return HttpResponse("usuario no autorizado para crear doctor")
 
 def TokenCreate(request):
     if request.method == 'POST':
@@ -31,3 +34,10 @@ def TokenCreate(request):
         token.token = data_json["token"]
         token.save()
         return HttpResponse("successfully created token")
+
+def check_token(data):
+    tokens = Tokens.objects.all()
+    for token in Tokens:
+        if data["token"] == token.token:
+            return True
+    return False
