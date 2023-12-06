@@ -30,4 +30,4 @@ def TokenCreate(request):
         token = Token()
         token.id = data_json["id"]
         token.save()
-        return HttpResponse("successfully created doctor")
+        return HttpResponse("successfully created token")

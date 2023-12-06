@@ -12,4 +12,6 @@ class Doctor(models.Model):
 class Token(models.Model):
     
     def _str_(self):
+        token = models.CharField(max_length=50)
+
         return '{}'.format(self.token)
